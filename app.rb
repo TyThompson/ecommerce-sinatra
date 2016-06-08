@@ -21,7 +21,38 @@ class ShopDBApp < Sinatra::Base
       @parsed_body ||= JSON.parse request.body.read
   end
 
-binding.pry
+  before do
+    require_authorization!
+  end
+
+  def require_authorization!
+    unless username
+      # status 401
+      halt({ error: "You must log in" }.to_json)
+    end
+  end
+
+  def username
+    username = request.env["HTTP_AUTHORIZATION"]
+    if username
+      User.find_by(password: username)
+    # else
+    #   halt 200
+    end
+  end
+
+  post "/users" do
+    User.create!(first_name: params[:first_name], last_name: params[:last_name], password: params[:password])
+  end
+
+  post "/items" do
+    Item.create!(description: params[:description], price: params[:price])
+  end
+
+  post "/items/#{item.id}/buy", quantity: 5
+    Purchase.create!(quantity: params[:quantity])
+
+    # body = request.body.read
   # post "/users/:name" do
   #   list = user.lists.where(title: params[:name]).first
   #   list.add_item parsed_body["name"], due_date: parsed_body["due_date"]

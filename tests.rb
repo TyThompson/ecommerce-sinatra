@@ -27,7 +27,7 @@ class AppTests < Minitest::Test
     Item.create! description: "Old Busted", price: 3.50
   end
 
-  def test_can_add_users
+  def test_can_add_users #done
     assert_equal 0, User.count
 
     r = post "/users", first_name: "New", last_name: "User", password: "password"
@@ -37,7 +37,7 @@ class AppTests < Minitest::Test
     assert_equal "New", User.first.first_name
   end
 
-  def test_users_can_add_items
+  def test_users_can_add_items #done
     user = make_existing_user
     header "Authorization", user.password
     assert_equal 0, Item.count
@@ -45,6 +45,7 @@ class AppTests < Minitest::Test
     r = post "/items", description: "New Hotness", price: 100.00
 
     assert_equal 200, r.status
+
     assert_equal 1, Item.count
     assert_equal "New Hotness", Item.first.description
   end
