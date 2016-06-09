@@ -1,6 +1,5 @@
 class Item < ActiveRecord::Base
-  # belongs_to :purchase
-
-  has many :users, through: :purchases
   has_many :purchases
+  has_many :users, through: :purchases
+  belongs_to :listed_by, class_name: "User"
 end

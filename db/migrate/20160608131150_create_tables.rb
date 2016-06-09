@@ -8,6 +8,7 @@ class CreateTables < ActiveRecord::Migration
     create_table :items do |t|
       t.string :description
       t.string :price
+      t.string :listed_by_id
     end
     create_table :purchases do |t|
       t.string :item_id

@@ -9,7 +9,6 @@ class ShopDBApp < Sinatra::Base
   set :show_exceptions, false
 
   error do |e|
-    #binding.pry
     raise e
   end
 
@@ -21,23 +20,12 @@ class ShopDBApp < Sinatra::Base
       @parsed_body ||= JSON.parse request.body.read
   end
 
-  before do
-    require_authorization!
-  end
-
-  def require_authorization!
-    unless username
-      # status 401
-      halt({ error: "You must log in" }.to_json)
-    end
-  end
-
-  def username
-    username = request.env["HTTP_AUTHORIZATION"]
-    if username
-      User.find_by(password: username)
-    # else
-    #   halt 200
+  def user
+    password = request.env["HTTP_AUTHORIZATION"]
+    if password
+      User.find_by(password: password)
+    else
+      halt 401
     end
   end
 
@@ -49,38 +37,27 @@ class ShopDBApp < Sinatra::Base
     Item.create!(description: params[:description], price: params[:price])
   end
 
-  post "/items/#{item.id}/buy", quantity: 5
-    Purchase.create!(quantity: params[:quantity])
+  post "/items/:id/buy" do
+    item = Item.where(id: params[:id]).first
+    if item != nil
+      user.purchases.create!(item_id: params[:id], quantity: params[:quantity])
+    else
+      raise ActiveRecord::RecordNotFound
+    end
+  end
 
-    # body = request.body.read
-  # post "/users/:name" do
-  #   list = user.lists.where(title: params[:name]).first
-  #   list.add_item parsed_body["name"], due_date: parsed_body["due_date"]
-  #
-  #   status 200
-  # end
-#
-# r = post "/users", first_name: "New", last_name: "User", password: "password"
-#
-# test_users_can_add_items
-#   user = make_existing_user
-#   header "Authorization", user.password
-#   assert_equal 0, Item.count
-#
-#   r = post "/items", description: "New Hotness", price: 100.00
-#
-#   header "Authorization", user.password
-#
-#   r = post "/items/#{item.id}/buy", quantity: 5
-#
-#
-#   assert_raises ActiveRecord::RecordNotFound do
-#     post "/items/99999/buy", quantity: 5
-#   end
-# r = delete "/items/#{item.id}"
-# 3.times do |i|
-#   u = User.create! first_name: i, last_name: i, password: "pass#{i}"
-#   u.purchases.create! item: item, quantity: 4
-# end
-# r = get "/items/#{item.id}/purchases"
+  get "/items/:id/purchases" do
+    items = Item.where(id: params[:id])
+    items.first.users.to_json
+  end
+
+  delete "/items/:id" do
+    item = Item.find_by(id: params[:id])
+    if item.listed_by == user
+      item.delete
+      status 200
+    else
+      status 403
+    end
+  end
 end

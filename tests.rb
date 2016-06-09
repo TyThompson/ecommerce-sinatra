@@ -50,7 +50,8 @@ class AppTests < Minitest::Test
     assert_equal "New Hotness", Item.first.description
   end
 
-  def test_users_can_buy_items
+
+  def test_users_can_buy_items #done
     item = make_item
     user = make_existing_user
     header "Authorization", user.password
@@ -63,7 +64,7 @@ class AppTests < Minitest::Test
     assert_equal Purchase.first, user.purchases.first
   end
 
-  def test_users_cant_buy_non_items
+  def test_users_cant_buy_non_items #done
     user = make_existing_user
     header "Authorization", user.password
 
@@ -74,7 +75,7 @@ class AppTests < Minitest::Test
     assert_equal 0, Purchase.count
   end
 
-  def test_users_cant_delete_arbitrary_items
+  def test_users_cant_delete_arbitrary_items #done
     item = make_item
     user = make_existing_user
     header "Authorization", user.password
@@ -85,7 +86,7 @@ class AppTests < Minitest::Test
     assert_equal 1, Item.count
   end
 
-  def test_users_can_delete_their_items
+  def test_users_can_delete_their_items #done
     item = make_item
     user = make_existing_user
     header "Authorization", user.password
@@ -98,7 +99,7 @@ class AppTests < Minitest::Test
     assert_equal 0, Item.count
   end
 
-  def test_users_can_see_who_has_ordered_an_item
+  def test_users_can_see_who_has_ordered_an_item #done
     item = make_item
     3.times do |i|
       u = User.create! first_name: i, last_name: i, password: "pass#{i}"
